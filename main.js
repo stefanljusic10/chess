@@ -22,7 +22,7 @@ const piecesImagePath = {
 }
 
 
-// GENERATING OBJECT FOR EACH SQUARE ON TABLE -----------------------------------------------------------------------
+// GENERATING 8x8 MATRIX - OBJECT FOR EACH SQUARE ON TABLE ----------------------------------------------------------
 function getSquareData(fen){
     // temp is 8x8 matrix which contains object data for each square
     let temp = []
