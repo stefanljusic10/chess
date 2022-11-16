@@ -19,7 +19,9 @@ let isWhiteMove = true
 let selectedPiece = { from: null, to: null }
 let pieceIsSelected = false
 
-// GENERATING DATA OBJECT FOR EACH SQUARE ON TABLE -------------------------------------------------
+
+
+// GENERATING DATA OBJECT FOR EACH SQUARE ON TABLE ------------------------------------------
 function getSquareData(fen){
     let temp = []
     let fenCopy = fen.slice(0, fen.indexOf(' ')).split('/')
@@ -46,17 +48,15 @@ function getSquareData(fen){
     }
     return temp
 }
-
-// PASS SQUARES AND GENERATE CHESSBOARD
+// PASS SQUARES AND GENERATE CHESSBOARD -----------------------------------------------------
 function generateChessboard(squares){
     for (let i = 0; i < squares.length; i++) {
         for (let j = 0; j < squares[i].length; j++) {
-            const piecePath = piecesImagePath[squares[i][j].piece]
+            const piecePath = (isEmpty(squares[i][j])) ? null : piecesImagePath[squares[i][j].piece]
             const square = document.createElement('div')
             const pieceImg = document.createElement('img')
             square.className = 'square'
             square.id = `${i}-${j}`
-            // square.setAttribute('draggable', true)
 
             if((i + j) % 2 === 1)
                 square.style.backgroundColor = '#DEE3E6'
@@ -71,14 +71,8 @@ function generateChessboard(squares){
         }
     }
 }
-
-// FUNCTION CALLS ---------------------------------------------------------------------------
-const squaresData = getSquareData(FEN)
-generateChessboard(squaresData)
-
-
 // MOVE PIECES ------------------------------------------------------------------------------
-table.addEventListener('click', (e) => {
+function movePieces(e, squares){
     if(e.target.tagName === 'IMG'){
         let [x, y] = e.target.parentNode.id.split('-')
         selectedPiece.from = { row: Number(x), col: Number(y) }
@@ -89,12 +83,33 @@ table.addEventListener('click', (e) => {
         // piece move needs to be vaildated
         let [x, y] = e.target.id.split('-')
         selectedPiece.to = { row: Number(x), col: Number(y) }
-        let pieceFrom = document.getElementById(`${selectedPiece.from.row}-${selectedPiece.from.col}`)
-        let getPieceFrom = pieceFrom.firstChild
-        pieceFrom.removeChild(getPieceFrom)
-        let pieceTo = document.getElementById(`${selectedPiece.to.row}-${selectedPiece.to.col}`)
-        pieceTo.appendChild(getPieceFrom)
+        let pieceToMove = squares[selectedPiece.from.row][selectedPiece.from.col]
+        squares[selectedPiece.to.row][selectedPiece.to.col] = { ...pieceToMove, isMoved: true }
+        squares[selectedPiece.from.row][selectedPiece.from.col] = {}
+        resetChessBoard();
+        generateChessboard(squares);
+
+        // reseting default values after piece was moved
+        selectedPiece.from = null
+        selectedPiece.to = null
         isWhiteMove = !isWhiteMove
         pieceIsSelected = false
     }
-})
+}
+// IF SQUARE IS EMPTY
+function isEmpty(square){
+    if(Object.keys(square).length === 0)
+        return true
+    else return false
+}
+// RESET CHESSBOAR
+function resetChessBoard(){
+    table.innerHTML = ''
+}
+
+// FUNCTION CALLS ---------------------------------------------------------------------------
+let squaresData = getSquareData(FEN)
+generateChessboard(squaresData)
+
+// EVENT LISTENER - MOVE PIECES -------------------------------------------------------------
+table.addEventListener('click', (e) => { movePieces(e, squaresData) })
