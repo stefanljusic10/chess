@@ -1,7 +1,10 @@
 const table = document.querySelector('.table')
+// FEN -> string with pieces starting position 
+// lowercase characters -> black pieces
+// uppercase characters -> white pieces
 const FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+const selected = { from: null, to: null }
 let isWhiteMove = true
-let selected = { from: null, to: null }
 let pieceIsSelected = false
 const piecesImagePath = {
     P: './assets/whitepawn.svg',
@@ -19,8 +22,9 @@ const piecesImagePath = {
 }
 
 
-// GENERATING DATA OBJECT FOR EACH SQUARE ON TABLE ------------------------------------------------------------------
+// GENERATING OBJECT FOR EACH SQUARE ON TABLE -----------------------------------------------------------------------
 function getSquareData(fen){
+    // temp is 8x8 matrix which contains object data for each square
     let temp = []
     let fenCopy = fen.slice(0, fen.indexOf(' ')).split('/')
     
@@ -29,7 +33,7 @@ function getSquareData(fen){
         for (let j = 0; j < fenCopy[i].length; j++) {
             let piece = fenCopy[i][j]
             let color
-            // check if there is a piece and if it is white or black
+            // uppercase indicates white pieces, lowercase -> black pieces
             if(isNaN(piece) && piece === piece.toUpperCase()){
                 color = 'white'
                 temp[i].push({ piece, color, isMoved: false })
@@ -38,6 +42,7 @@ function getSquareData(fen){
                 color = 'black'
                 temp[i].push({ piece, color, isMoved: false })
             }
+            // if there is no piece, push empty object into matrix
             if(!isNaN(piece)) {
                 let emptySquare = Number(piece)
                 temp[i] = new Array(emptySquare).fill({})
@@ -46,7 +51,7 @@ function getSquareData(fen){
     }
     return temp
 }
-// PASS SQUARES AND GENERATE CHESSBOARD -----------------------------------------------------------------------------
+// PASS MATRIX WITH SQUARE OBJECTS AND GENERATE CHESSBOARD ----------------------------------------------------------
 function generateChessboard(squares){
     for (let i = 0; i < squares.length; i++) {
         for (let j = 0; j < squares[i].length; j++) {
@@ -54,6 +59,7 @@ function generateChessboard(squares){
             const square = document.createElement('div')
             const pieceImg = document.createElement('img')
             square.className = 'square'
+            // each div id contains i-j coordinate
             square.id = `${i}-${j}`
 
             if((i + j) % 2 === 1)
@@ -73,11 +79,43 @@ function generateChessboard(squares){
 function resetChessBoard(){
     table.innerHTML = ''
 }
+// IF THERE IS NO PIECE ON THE SQUARE -------------------------------------------------------------------------------
+function isEmpty(square){
+    if(Object.keys(square).length === 0)
+        return true
+    else return false
+}
+// CHECK VALID PIECE MOVES ------------------------------------------------------------------------------------------
+function isValidPawnMove(piece, from, to){
+    let [fromRow, fromCol, toRow, toCol] = [from.row, from.col, to.row, to.col].map((e) => Number(e))
+    console.log(isEmpty(squaresData[fromRow + 1][fromCol]));
+    let rowMove = Math.abs(to.row - from.row)
+    let colMove = Math.abs(to.col - from.col)
+    let whiteCanGoForward = (to.row - from.row > 0) ? true : false
+    let blackCanGoForward = (to.row - from.row > 0) ? false : true
+
+    if(piece.color === 'white' && to.row > 0){
+        
+    }
+    if(piece.color === 'black' && to.row < 7){
+        
+    }
+}
+function isValidMove(piece, from, to){
+    let pieceName = piece.piece.toLowerCase()
+
+    // pawn
+    if(pieceName === 'p') 
+        return isValidPawnMove(piece, from, to)
+}
 // MOVE PIECES ------------------------------------------------------------------------------------------------------
 function movePiece(e){
+    // piece is clicked
     if(e.target.tagName === 'IMG'){
+        // check is white or black move
         if(isWhiteMove){
             let [row, col] = e.target.parentNode.id.split('-')
+            // get position of selected white piece and assign to global variable -> selected
             if(squaresData[row][col].color === 'white'){
                 selected.from = { row, col }
                 pieceIsSelected = !pieceIsSelected
@@ -85,51 +123,41 @@ function movePiece(e){
         }
         else{
             let [row, col] = e.target.parentNode.id.split('-')
+            // get position of selected black piece
             if(squaresData[row][col].color === 'black'){
                 selected.from = { row, col }
                 pieceIsSelected = !pieceIsSelected
             }
         }
     }
+    // click square where we want to move a piece
     if(pieceIsSelected && e.target.tagName === 'DIV'){
-        // pomeranje figura
-        // piece move needs to be vaildated
+        // get coordinates of selected square and assign to global variable -> selected
         let [row, col] = e.target.id.split('-')
         selected.to = { row, col }
         let pieceToMove = squaresData[selected.from.row][selected.from.col]
 
-        if(isValidMove(pieceToMove, selected.from, selected.to)){
-            squaresData[selected.to.row][selected.to.col] = { ...pieceToMove, isMoved: true }
-            squaresData[selected.from.row][selected.from.col] = {}
+        // moving pieces without validation
+        squaresData[selected.to.row][selected.to.col] = { ...pieceToMove, isMoved: true }
+        squaresData[selected.from.row][selected.from.col] = {}
     
-            // clear chessboard and generate new one after piece is moved
-            resetChessBoard();
-            generateChessboard(squaresData);
+        resetChessBoard();
+        generateChessboard(squaresData);
+
+        isWhiteMove = !isWhiteMove
+        pieceIsSelected = false
+
+        // validating piece move, isValidMove() return true or false
+        // if(isValidMove(pieceToMove, selected.from, selected.to)){
+        //     squaresData[selected.to.row][selected.to.col] = { ...pieceToMove, isMoved: true }
+        //     squaresData[selected.from.row][selected.from.col] = {}
     
-            isWhiteMove = !isWhiteMove
-            pieceIsSelected = false
-        }
-
-    }
-}
-// IF SQUARE IS EMPTY -----------------------------------------------------------------------------------------------
-function isEmpty(square){
-    if(Object.keys(square).length === 0)
-        return true
-    else return false
-}
-// CHECK VALID PIECE MOVES ------------------------------------------------------------------------------------------
-function isValidMove(piece, from, to){
-    let pieceName = piece.piece.toLowerCase()
-
-    // pawn
-    if(pieceName === 'p'){
-        if(!piece.isMoved && Math.abs(to.row - from.row) <= 2){
-            return true
-        }
-        if(piece.isMoved && Math.abs(to.row - from.row) === 1){
-            return true
-        }
+        //     resetChessBoard();
+        //     generateChessboard(squaresData);
+    
+        //     isWhiteMove = !isWhiteMove
+        //     pieceIsSelected = false
+        // }
     }
 }
 
