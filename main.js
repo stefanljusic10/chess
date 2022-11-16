@@ -19,13 +19,39 @@ let isWhiteMove = true
 let selectedPiece = { from: null, to: null }
 let pieceIsSelected = false
 
-// GENERATE CHESS TABLE WITH PIECES ---------------------------------------------------------
-function generateChessboard(fen){
-    const fenCopy = fen.slice(0, fen.indexOf(' ')).split('/')
+// GENERATING DATA OBJECT FOR EACH SQUARE ON TABLE -------------------------------------------------
+function getSquareData(fen){
+    let temp = []
+    let fenCopy = fen.slice(0, fen.indexOf(' ')).split('/')
+    
+    for (let i = 0; i < fenCopy.length; i++) {
+        temp[i] = []
+        for (let j = 0; j < fenCopy[i].length; j++) {
+            let piece = fenCopy[i][j]
+            let color
+            // check if there is a piece and if it is white or black
+            if(isNaN(piece) && piece === piece.toUpperCase()){
+                color = 'white'
+                temp[i].push({ piece, color, isMoved: false })
+            }
+            if(isNaN(piece) && piece === piece.toLowerCase()){
+                color = 'black'
+                temp[i].push({ piece, color, isMoved: false })
+            }
+            if(!isNaN(piece)) {
+                let emptySquare = Number(piece)
+                temp[i] = new Array(emptySquare).fill({})
+            }
+        }
+    }
+    return temp
+}
 
-    for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-            const piecePath = piecesImagePath[fenCopy[i][j]]
+// PASS SQUARES AND GENERATE CHESSBOARD
+function generateChessboard(squares){
+    for (let i = 0; i < squares.length; i++) {
+        for (let j = 0; j < squares[i].length; j++) {
+            const piecePath = piecesImagePath[squares[i][j].piece]
             const square = document.createElement('div')
             const pieceImg = document.createElement('img')
             square.className = 'square'
@@ -45,55 +71,20 @@ function generateChessboard(fen){
         }
     }
 }
-// GENERATING DATA FOR EACH SQUARE ON TABLE -------------------------------------------------
-function getSquareData(fen){
-    let temp = []
-    let fenCopy = fen.slice(0, fen.indexOf(' ')).split('/')
-    
-    for (let i = 0; i < fenCopy.length; i++) {
-        temp[i] = []
-        for (let j = 0; j < fenCopy[i].length; j++) {
-            let square = fenCopy[i][j]
-            let color
-            // check if there is a piece and if it is white or black
-            if(isNaN(square) && square === square.toUpperCase()){
-                color = 'white'
-                temp[i].push({ square, color })
-            }
-            if(isNaN(square) && square === square.toLowerCase()){
-                color = 'black'
-                temp[i].push({ square, color })
-            }
-            if(!isNaN(square)) {
-                let emptySquare = Number(square)
-                temp[i] = new Array(emptySquare).fill({})
-            }
-        }
-    }
-    return temp
-}
 
 // FUNCTION CALLS ---------------------------------------------------------------------------
-generateChessboard(FEN)
 const squaresData = getSquareData(FEN)
-console.log(squaresData);
+generateChessboard(squaresData)
 
 
 // MOVE PIECES ------------------------------------------------------------------------------
-// validation
 table.addEventListener('click', (e) => {
     if(e.target.tagName === 'IMG'){
-        // let square = e.target.parentNode
         let [x, y] = e.target.parentNode.id.split('-')
         selectedPiece.from = { row: Number(x), col: Number(y) }
         pieceIsSelected = !pieceIsSelected
-        // if(pieceIsSelected)
-        //     square.style.filter = 'brightness(90%)'
-        // else square.style.filter = null
     }
     if(pieceIsSelected && e.target.tagName === 'DIV'){
-        // generate new fen and the call generateChessboard()
-        let fenCopy = FEN.slice(0, FEN.indexOf(' ')).split('/').map(e => [...e])
         // pomeranje figura
         // piece move needs to be vaildated
         let [x, y] = e.target.id.split('-')
