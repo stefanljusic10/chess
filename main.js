@@ -1,4 +1,8 @@
 const table = document.querySelector('.table')
+const FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+let isWhiteMove = true
+let selected = { from: null, to: null }
+let pieceIsSelected = false
 const piecesImagePath = {
     P: './assets/whitepawn.svg',
     N: './assets/whitenight.svg',
@@ -13,15 +17,9 @@ const piecesImagePath = {
     k: './assets/blackking.svg',
     q: './assets/blackqueen.svg'
 }
-// FEN - default position of pieces
-const FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-let isWhiteMove = true
-let selectedPiece = { from: null, to: null }
-let pieceIsSelected = false
 
 
-
-// GENERATING DATA OBJECT FOR EACH SQUARE ON TABLE ------------------------------------------
+// GENERATING DATA OBJECT FOR EACH SQUARE ON TABLE ------------------------------------------------------------------
 function getSquareData(fen){
     let temp = []
     let fenCopy = fen.slice(0, fen.indexOf(' ')).split('/')
@@ -48,7 +46,7 @@ function getSquareData(fen){
     }
     return temp
 }
-// PASS SQUARES AND GENERATE CHESSBOARD -----------------------------------------------------
+// PASS SQUARES AND GENERATE CHESSBOARD -----------------------------------------------------------------------------
 function generateChessboard(squares){
     for (let i = 0; i < squares.length; i++) {
         for (let j = 0; j < squares[i].length; j++) {
@@ -71,45 +69,58 @@ function generateChessboard(squares){
         }
     }
 }
-// MOVE PIECES ------------------------------------------------------------------------------
-function movePieces(e, squares){
+// RESET CHESSBOAR --------------------------------------------------------------------------------------------------
+function resetChessBoard(){
+    table.innerHTML = ''
+}
+// MOVE PIECES ------------------------------------------------------------------------------------------------------
+function movePiece(e, squares){
     if(e.target.tagName === 'IMG'){
-        let [x, y] = e.target.parentNode.id.split('-')
-        selectedPiece.from = { row: Number(x), col: Number(y) }
-        pieceIsSelected = !pieceIsSelected
+        if(isWhiteMove){
+            let [row, col] = e.target.parentNode.id.split('-')
+            if(squares[row][col].color === 'white'){
+                selected.from = { row, col }
+                pieceIsSelected = !pieceIsSelected
+            }
+        }
+        else{
+            let [row, col] = e.target.parentNode.id.split('-')
+            if(squares[row][col].color === 'black'){
+                selected.from = { row, col }
+                pieceIsSelected = !pieceIsSelected
+            }
+        }
     }
     if(pieceIsSelected && e.target.tagName === 'DIV'){
         // pomeranje figura
         // piece move needs to be vaildated
         let [x, y] = e.target.id.split('-')
-        selectedPiece.to = { row: Number(x), col: Number(y) }
-        let pieceToMove = squares[selectedPiece.from.row][selectedPiece.from.col]
-        squares[selectedPiece.to.row][selectedPiece.to.col] = { ...pieceToMove, isMoved: true }
-        squares[selectedPiece.from.row][selectedPiece.from.col] = {}
+        selected.to = { row: Number(x), col: Number(y) }
+        let pieceToMove = squares[selected.from.row][selected.from.col]
+        squares[selected.to.row][selected.to.col] = { ...pieceToMove, isMoved: true }
+        squares[selected.from.row][selected.from.col] = {}
+
+        // clear chessboard and generate new one after piece is moved
         resetChessBoard();
         generateChessboard(squares);
 
         // reseting default values after piece was moved
-        selectedPiece.from = null
-        selectedPiece.to = null
+        selected.from = null
+        selected.to = null
         isWhiteMove = !isWhiteMove
         pieceIsSelected = false
     }
 }
-// IF SQUARE IS EMPTY
+// IF SQUARE IS EMPTY -----------------------------------------------------------------------------------------------
 function isEmpty(square){
     if(Object.keys(square).length === 0)
         return true
     else return false
 }
-// RESET CHESSBOAR
-function resetChessBoard(){
-    table.innerHTML = ''
-}
 
-// FUNCTION CALLS ---------------------------------------------------------------------------
-let squaresData = getSquareData(FEN)
+
+// FUNCTION CALLS ---------------------------------------------------------------------------------------------------
+const squaresData = getSquareData(FEN)
 generateChessboard(squaresData)
-
-// EVENT LISTENER - MOVE PIECES -------------------------------------------------------------
-table.addEventListener('click', (e) => { movePieces(e, squaresData) })
+// EVENT LISTENER - MOVE PIECES -------------------------------------------------------------------------------------
+table.addEventListener('click', (e) => { movePiece(e, squaresData) })
