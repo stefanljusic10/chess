@@ -1,4 +1,6 @@
 const table = document.querySelector('.table')
+const modalPickPiece = document.querySelector('.modal')
+const piecesBox = document.querySelector('.pieces-box')
 // FEN -> string with pieces starting position 
 // lowercase characters -> black pieces
 // uppercase characters -> white pieces
@@ -20,8 +22,18 @@ const piecesImagePath = {
     k: './assets/blackking.svg',
     q: './assets/blackqueen.svg'
 }
+const availablePieces = [
+    { piece: 'r', color: 'black', isMoved: true },
+    { piece: 'n', color: 'black', isMoved: true },
+    { piece: 'b', color: 'black', isMoved: true },
+    { piece: 'q', color: 'black', isMoved: true },
+    { piece: 'R', color: 'white', isMoved: true },
+    { piece: 'N', color: 'white', isMoved: true },
+    { piece: 'B', color: 'white', isMoved: true },
+    { piece: 'Q', color: 'white', isMoved: true },
+]
 
-
+// ------------> FUNCTION DEFINITIONS <--------------
 // GENERATING 8x8 MATRIX - OBJECT FOR EACH SQUARE ON TABLE ----------------------------------------------------------
 function getSquareData(fen){
     // temp is 8x8 matrix which contains object data for each square
@@ -54,6 +66,7 @@ function generateChessboard(squares){
             square.id = `${i}-${j}`
             square.className = 'square'
             square.style.backgroundColor = ((i + j) % 2 === 0) ? '#DEE3E6' : '#8CA2AD'
+            pieceImg.className = 'pieceImg'
 
             if(piecePath){
                 pieceImg.src = `${piecePath}`
@@ -65,8 +78,12 @@ function generateChessboard(squares){
     }
 }
 // RESET CHESSBOAR --------------------------------------------------------------------------------------------------
-function resetChessBoard(){
+function resetChessboard(){
     table.innerHTML = ''
+}
+// RESET PIECES BOX -------------------------------------------------------------------------------------------------
+function resetPiecesBox(){
+    piecesBox.innerHTML = ''
 }
 // IF THERE IS NO PIECE ON THE SQUARE -------------------------------------------------------------------------------
 function isEmpty(square){
@@ -74,33 +91,40 @@ function isEmpty(square){
         return true
     else return false
 }
-// CHECK VALID PIECE MOVES ------------------------------------------------------------------------------------------
+// CHECK VALID PAWN MOVES -------------------------------------------------------------------------------------------
 function isValidPawnMove(piece, from, to){
     let [fromRow, fromCol, toRow, toCol] = [from.row, from.col, to.row, to.col].map((num) => Number(num))
     let rowDiff = Math.abs(toRow - fromRow)
     let colDiff = Math.abs(toCol - fromCol)
-    // console.log(isEmpty(squaresData[toRow][toCol]));
+    let isEmptySquare = isEmpty(squaresData[toRow][toCol])
 
     if(piece.color === 'white' && toRow < fromRow){
-        if(piece.isMoved === false && rowDiff <= 2 && colDiff === 0)
+        if(rowDiff === 1 && colDiff === 1 && toRow === 0)
+            toggleModal(piece)
+        if(piece.isMoved === false && rowDiff <= 2 && colDiff === 0 && isEmptySquare)
             return true
-        if(piece.isMoved === true && rowDiff === 1 && colDiff === 0)
+        if(piece.isMoved === true && rowDiff === 1 && colDiff === 0 && isEmptySquare)
             return true
-        if(rowDiff === 1 && colDiff === 1 && !isEmpty(squaresData[toRow][toCol]))
+        if(rowDiff === 1 && colDiff === 1 && !isEmptySquare)
             return true
+        // an passant - to do
     }
 
     if(piece.color === 'black' && toRow > fromRow){
-        if(piece.isMoved === false && rowDiff <= 2 && colDiff === 0)
+        if(rowDiff === 1 && colDiff === 1 && toRow === 7)
+            toggleModal(piece)
+        if(piece.isMoved === false && rowDiff <= 2 && colDiff === 0 && isEmptySquare)
             return true
-        if(piece.isMoved === true && rowDiff === 1 && colDiff === 0)
+        if(piece.isMoved === true && rowDiff === 1 && colDiff === 0 && isEmptySquare)
             return true
         if(rowDiff === 1 && colDiff === 1 && !isEmpty(squaresData[toRow][toCol]))
             return true
+        // an passant - to do
     }
 
     return false
 }
+// CHECK ALL PIECES MOVES -------------------------------------------------------------------------------------------
 function isValidMove(piece, from, to){
     let pieceName = piece.piece.toLowerCase()
 
@@ -146,7 +170,7 @@ function movePiece(e){
             squaresData[selected.from.row][selected.from.col] = {}
             // console.log(squaresData);
         
-            resetChessBoard();
+            resetChessboard();
             generateChessboard(squaresData);
         
             isWhiteMove = !isWhiteMove
@@ -154,10 +178,33 @@ function movePiece(e){
         }
     }
 }
+// SHOW MODAL, PICK PIECES AFTER PAWN REACHES LAST ROW --------------------------------------------------------------
+function toggleModal(piece){
+    // generating available pieces images
+    let piecesByColor = availablePieces.filter(e => e.color === piece.color)
+    for (let i = 0; i < piecesByColor.length; i++) {
+        piecesBox.innerHTML += `<img id=${piecesByColor[i].piece} class='available-piece' src=${piecesImagePath[piecesByColor[i].piece]}>`
+    }
+    modalPickPiece.classList.remove('modal-closed')
+}
+// PICK PIECE AFTER PAWN REACHES LAST ROW ---------------------------------------------------------------------------
+function pickPiece(e){
+    let pickedPiece = availablePieces.filter(element => element.piece === e.target.id)[0]
+    console.log(pickedPiece);
+    squaresData[selected.to.row][selected.to.col] = pickedPiece
+    modalPickPiece.classList.add('modal-closed')
+    pickedPiece = null
+    resetPiecesBox()
+    resetChessboard()
+    generateChessboard(squaresData)
+    console.log(squaresData);
+}
 
 
-// FUNCTION CALLS ---------------------------------------------------------------------------------------------------
+
+// ------------> FUNCTION CALLS <--------------
 let squaresData = getSquareData(FEN)
 generateChessboard(squaresData)
 // EVENT LISTENER - MOVE PIECES -------------------------------------------------------------------------------------
 table.addEventListener('click', movePiece)
+piecesBox.addEventListener('click', pickPiece)

@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+body{
+    height: 100vh;
+}
+
 .table{
     display: grid;
     grid-template-columns: repeat(8, 1fr);
@@ -12,6 +16,7 @@
     width: 35rem;
     height: 35rem;
     border: 5px solid #52656f;
+    z-index: 0;
 }
 
 .square{
@@ -20,6 +25,32 @@
     align-items: center;
 }
 
-img{
+.pieceImg{
     width: 95%;
+}
+
+.modal{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .75);
+}
+
+.modal-closed{
+    display: none;
+}
+
+.pieces-box{
+    width: fit-content;
+    background-color: white;
+    padding: .5rem 3rem;
+}
+
+.available-piece{
+    width: 5rem;
 }
