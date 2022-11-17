@@ -124,6 +124,15 @@ function isValidPawnMove(piece, from, to){
 
     return false
 }
+// CHECK VALID KNIGHT MOVES -----------------------------------------------------------------------------------------
+function isValidKnightMove(piece, from, to){
+    let [fromRow, fromCol, toRow, toCol] = [from.row, from.col, to.row, to.col].map((num) => Number(num))
+    let rowDiff = Math.abs(toRow - fromRow)
+    let colDiff = Math.abs(toCol - fromCol)
+
+    if(rowDiff + colDiff === 3 && squaresData[toRow, toCol].color !== piece.color)
+        return true
+}
 // CHECK ALL PIECES MOVES -------------------------------------------------------------------------------------------
 function isValidMove(piece, from, to){
     let pieceName = piece.piece.toLowerCase()
@@ -131,6 +140,9 @@ function isValidMove(piece, from, to){
     // pawn
     if(pieceName === 'p') 
         return isValidPawnMove(piece, from, to)
+    // knight
+    if(pieceName === 'n')
+        return isValidKnightMove(piece, from, to)
 }
 // MOVE PIECES ------------------------------------------------------------------------------------------------------
 function movePiece(e){
