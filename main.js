@@ -53,6 +53,13 @@ function getSquareData(fen){
                 temp[i] = new Array(Number(piece)).fill({})
         }
     }
+
+    for (let i = 0; i < temp.length; i++) {
+        for (let j = 0; j < temp[i].length; j++) {
+            temp[i][j] = { ...temp[i][j], num: i*8 + j, row: i, col: j }
+        }
+    }
+
     return temp
 }
 // PASS MATRIX WITH SQUARE OBJECTS AND GENERATE CHESSBOARD ----------------------------------------------------------
@@ -87,9 +94,10 @@ function resetPiecesBox(){
 }
 // IF THERE IS NO PIECE ON THE SQUARE -------------------------------------------------------------------------------
 function isEmpty(square){
-    if(Object.keys(square).length === 0)
-        return true
-    else return false
+    // if(Object.keys(square).length === 0)
+    if(square.hasOwnProperty('piece'))
+        return false
+    else return true
 }
 // CHECK VALID PAWN MOVES -------------------------------------------------------------------------------------------
 function isValidPawnMove(piece, from, to){
@@ -133,6 +141,37 @@ function isValidKnightMove(piece, from, to){
     if(rowDiff + colDiff === 3 && squaresData[toRow, toCol].color !== piece.color)
         return true
 }
+// CHECK VALID BISHOP MOVES -----------------------------------------------------------------------------------------
+function isValidBishopMove(piece, from, to){
+    let [fromRow, fromCol, toRow, toCol] = [from.row, from.col, to.row, to.col].map((num) => Number(num))
+    let rowDiff = Math.abs(toRow - fromRow)
+    let colDiff = Math.abs(toCol - fromCol)
+    let bishopMoves = []
+    let flag = false
+
+    if(rowDiff === colDiff && fromRow !== toRow && fromCol !== toCol){
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                // generating all possible squares for bishop
+                if(
+                    ((i + j === fromRow + fromCol)
+                    ||
+                    (Math.abs(i - j) === Math.abs(fromRow - fromCol) && fromRow - i === fromCol - j))
+                    &&
+                    i !== fromRow
+                    &&
+                    j !== fromCol
+                )
+                    bishopMoves.push([i, j])
+            }
+        }
+
+        // filtering all possible moves on the chessboard
+       console.log(bishopMoves);
+    }
+
+    return flag
+}
 // CHECK ALL PIECES MOVES -------------------------------------------------------------------------------------------
 function isValidMove(piece, from, to){
     let pieceName = piece.piece.toLowerCase()
@@ -143,11 +182,13 @@ function isValidMove(piece, from, to){
     // knight
     if(pieceName === 'n')
         return isValidKnightMove(piece, from, to)
+    // bishop
+    if(pieceName === 'b')
+        return isValidBishopMove(piece, from, to)
 }
 // MOVE PIECES ------------------------------------------------------------------------------------------------------
 function movePiece(e){
     let clickedPiece = (e.target.tagName === 'IMG')
-    let clickedSquare = (e.target.tagName === 'DIV')
 
     // piece is clicked
     if(clickedPiece){
@@ -178,13 +219,20 @@ function movePiece(e){
 
         // validating piece move, isValidMove() return true or false
         if(isValidMove(pieceToMove, selected.from, selected.to)){
-            squaresData[selected.to.row][selected.to.col] = { ...pieceToMove, isMoved: true }
-            squaresData[selected.from.row][selected.from.col] = {}
-            // console.log(squaresData);
-        
+            let fromRow = Number(selected.from.row)
+            let fromCol = Number(selected.from.col)
+            let toRow = Number(selected.to.row)
+            let toCol = Number(selected.to.col)
+            let numTo = squaresData[selected.to.row][selected.to.col].num
+            let numFrom = squaresData[selected.from.row][selected.from.col].num
+
+            // moving piece, updating squareData objects
+            squaresData[selected.to.row][selected.to.col] = { ...pieceToMove, isMoved: true, row: toRow, col: toCol, num: numTo }
+            squaresData[selected.from.row][selected.from.col] = { row: fromRow, col: fromCol, num: numFrom }
+    
+            // generate new chessboard after piece is moved
             resetChessboard();
             generateChessboard(squaresData);
-        
             isWhiteMove = !isWhiteMove
             pieceIsSelected = false
         }
@@ -220,3 +268,5 @@ generateChessboard(squaresData)
 // EVENT LISTENER - MOVE PIECES -------------------------------------------------------------------------------------
 table.addEventListener('click', movePiece)
 piecesBox.addEventListener('click', pickPiece)
+
+// console.log(squaresData);
