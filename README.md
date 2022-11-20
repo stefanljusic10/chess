@@ -6,3 +6,7 @@
 3. addEventListener on chessboard which catches clicked square. It is necessary to first click the figure, then click the field where we want to move a piece
 4. Validating moves for each clicked piece.
 5. If move is valid, the global matrix is updated and new chessboard is generated based on updated matrix
+
+### Ideas to implement
+1. Chess clock
+2. Showing taken pieces next to the chessboard
