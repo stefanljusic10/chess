@@ -101,10 +101,10 @@ function isEmpty(square){
 }
 // CHECK VALID PAWN MOVES -------------------------------------------------------------------------------------------
 function isValidPawnMove(piece, from, to){
-    let [fromRow, fromCol, toRow, toCol] = [from.row, from.col, to.row, to.col].map((num) => Number(num))
-    let rowDiff = Math.abs(toRow - fromRow)
-    let colDiff = Math.abs(toCol - fromCol)
-    let isEmptySquare = isEmpty(squaresData[toRow][toCol])
+    const [fromRow, fromCol, toRow, toCol] = [from.row, from.col, to.row, to.col].map((num) => Number(num))
+    const rowDiff = Math.abs(toRow - fromRow)
+    const colDiff = Math.abs(toCol - fromCol)
+    const isEmptySquare = isEmpty(squaresData[toRow][toCol])
 
     if(piece.color === 'white' && toRow < fromRow){
         if(rowDiff === 1 && colDiff === 1 && toRow === 0)
@@ -134,16 +134,16 @@ function isValidPawnMove(piece, from, to){
 }
 // CHECK VALID KNIGHT MOVES -----------------------------------------------------------------------------------------
 function isValidKnightMove(piece, from, to){
-    let [fromRow, fromCol, toRow, toCol] = [from.row, from.col, to.row, to.col].map((num) => Number(num))
-    let rowDiff = Math.abs(toRow - fromRow)
-    let colDiff = Math.abs(toCol - fromCol)
+    const [fromRow, fromCol, toRow, toCol] = [from.row, from.col, to.row, to.col].map((num) => Number(num))
+    const rowDiff = Math.abs(toRow - fromRow)
+    const colDiff = Math.abs(toCol - fromCol)
 
     if(rowDiff + colDiff === 3 && squaresData[toRow, toCol].color !== piece.color)
         return true
 }
 // CHECK VALID BISHOP MOVES -----------------------------------------------------------------------------------------
 function isValidBishopMove(piece, from, to){
-    let [fromRow, fromCol, fromNum, toRow, toCol, toNum] = [from.row, from.col, from.num, to.row, to.col, to.num].map((num) => Number(num))
+    const [fromRow, fromCol, fromNum, toRow, toCol, toNum] = [from.row, from.col, from.num, to.row, to.col, to.num].map((num) => Number(num))
     let flag = false
 
     // up left direction - diff 9
@@ -210,6 +210,55 @@ function isValidBishopMove(piece, from, to){
 
     // return flag
 }
+// CHECK VALID ROOK MOVES -------------------------------------------------------------------------------------------
+function isValidRookMove(piece, from, to){
+    let [fromRow, fromCol, fromNum, toRow, toCol, toNum] = [from.row, from.col, from.num, to.row, to.col, to.num].map((num) => Number(num))
+    let flag = false
+
+    // rook moves left - diff 1
+    if(fromRow === toRow && fromCol > toCol){
+        for (let i = fromNum - 1; i >= toNum; i--){
+            let nextSquare = squaresData.find(row => row.find(e => e.num === i)).filter(e => e.num === i)[0]
+            if(squaresData[nextSquare.row][nextSquare.col].color === piece.color)
+                return false
+            else flag = true
+        }
+        return flag
+    }
+
+    // rook moves right - diff 1
+    if(fromRow === toRow && fromCol < toCol){
+        for (let i = fromNum + 1; i <= toNum; i++){
+            let nextSquare = squaresData.find(row => row.find(e => e.num === i)).filter(e => e.num === i)[0]
+            if(squaresData[nextSquare.row][nextSquare.col].color === piece.color)
+                return false
+            else flag = true
+        }
+        return flag
+    }
+
+    // rook moves up - diff 8
+    if(fromRow > toRow && fromCol === toCol){
+        for (let i = fromNum - 8; i >= toNum; i-=8){
+            let nextSquare = squaresData.find(row => row.find(e => e.num === i)).filter(e => e.num === i)[0]
+            if(squaresData[nextSquare.row][nextSquare.col].color === piece.color)
+                return false
+            else flag = true
+        }
+        return flag
+    }
+
+    // rook moves down - diff 8
+    if(fromRow < toRow && fromCol === toCol){
+        for (let i = fromNum + 8; i <= toNum; i+=8){
+            let nextSquare = squaresData.find(row => row.find(e => e.num === i)).filter(e => e.num === i)[0]
+            if(squaresData[nextSquare.row][nextSquare.col].color === piece.color)
+                return false
+            else flag = true
+        }
+        return flag
+    }
+}
 // CHECK ALL PIECES MOVES -------------------------------------------------------------------------------------------
 function isValidMove(piece, from, to){
     let pieceName = piece.piece.toLowerCase()
@@ -223,6 +272,8 @@ function isValidMove(piece, from, to){
     // bishop
     if(pieceName === 'b')
         return isValidBishopMove(piece, from, to)
+    if(pieceName === 'r')
+        return isValidRookMove(piece, from, to)
 }
 // MOVE PIECES ------------------------------------------------------------------------------------------------------
 function movePiece(e){
