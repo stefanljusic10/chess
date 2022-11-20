@@ -10,3 +10,4 @@
 ### Ideas to implement
 1. Chess clock
 2. Showing taken pieces next to the chessboard
+3. Drag and drop
