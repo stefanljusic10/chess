@@ -259,6 +259,12 @@ function isValidRookMove(piece, from, to){
         return flag
     }
 }
+// CHECK VALID QUEEN MOVE -------------------------------------------------------------------------------------------
+function isValidQueenMove(piece, from, to){
+    if(isValidBishopMove(piece, from, to) || isValidRookMove(piece, from, to))
+        return true
+    else return false
+}
 // CHECK ALL PIECES MOVES -------------------------------------------------------------------------------------------
 function isValidMove(piece, from, to){
     let pieceName = piece.piece.toLowerCase()
@@ -274,6 +280,8 @@ function isValidMove(piece, from, to){
         return isValidBishopMove(piece, from, to)
     if(pieceName === 'r')
         return isValidRookMove(piece, from, to)
+    if(pieceName === 'q')
+        return isValidQueenMove(piece, from, to)
 }
 // MOVE PIECES ------------------------------------------------------------------------------------------------------
 function movePiece(e){
