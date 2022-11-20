@@ -70,7 +70,7 @@ function generateChessboard(squares){
             const square = document.createElement('div')
             const pieceImg = document.createElement('img')
             // each div id contains i-j coordinate
-            square.id = `${i}-${j}`
+            square.id = `${i}-${j}-${squares[i][j].num}`
             square.className = 'square'
             square.style.backgroundColor = ((i + j) % 2 === 0) ? '#DEE3E6' : '#8CA2AD'
             pieceImg.className = 'pieceImg'
@@ -143,34 +143,72 @@ function isValidKnightMove(piece, from, to){
 }
 // CHECK VALID BISHOP MOVES -----------------------------------------------------------------------------------------
 function isValidBishopMove(piece, from, to){
-    let [fromRow, fromCol, toRow, toCol] = [from.row, from.col, to.row, to.col].map((num) => Number(num))
-    let rowDiff = Math.abs(toRow - fromRow)
-    let colDiff = Math.abs(toCol - fromCol)
-    let bishopMoves = []
+    let [fromRow, fromCol, fromNum, toRow, toCol, toNum] = [from.row, from.col, from.num, to.row, to.col, to.num].map((num) => Number(num))
     let flag = false
 
-    if(rowDiff === colDiff && fromRow !== toRow && fromCol !== toCol){
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                // generating all possible squares for bishop
-                if(
-                    ((i + j === fromRow + fromCol)
-                    ||
-                    (Math.abs(i - j) === Math.abs(fromRow - fromCol) && fromRow - i === fromCol - j))
-                    &&
-                    i !== fromRow
-                    &&
-                    j !== fromCol
-                )
-                    bishopMoves.push([i, j])
-            }
+    // up left direction - diff 9
+    if(fromRow > toRow && fromCol > toCol){
+        for (let i = fromNum - 9; i >= toNum; i-=9) {
+            let nextSquare = squaresData.find(row => row.find(e => e.num === i)).filter(e => e.num === i)[0]
+            if(squaresData[nextSquare.row][nextSquare.col].color === piece.color)
+                return false
+            else flag = true
         }
-
-        // filtering all possible moves on the chessboard
-       console.log(bishopMoves);
+        return flag
+    }
+    
+    // up right direction - diff 7
+    if(fromRow > toRow && fromCol < toCol){
+        for (let i = fromNum - 7; i >= toNum; i-=7) {
+            let nextSquare = squaresData.find(row => row.find(e => e.num === i)).filter(e => e.num === i)[0]
+            if(squaresData[nextSquare.row][nextSquare.col].color === piece.color)
+                return false
+            else flag = true
+        }
+        return flag
     }
 
-    return flag
+    // bottom left direction - diff 7
+    if(fromRow < toRow && fromCol > toCol){
+        for (let i = fromNum + 7; i <= toNum; i+=7) {
+            let nextSquare = squaresData.find(row => row.find(e => e.num === i)).filter(e => e.num === i)[0]
+            if(squaresData[nextSquare.row][nextSquare.col].color === piece.color)
+                return false
+            else flag = true
+        }
+        return flag
+    }
+
+    // bottom right direction - diff 9
+    if(fromRow < toRow && fromCol < toCol){
+        for (let i = fromNum + 9; i <= toNum; i+=9) {
+            let nextSquare = squaresData.find(row => row.find(e => e.num === i)).filter(e => e.num === i)[0]
+            if(squaresData[nextSquare.row][nextSquare.col].color === piece.color)
+                return false
+            else flag = true
+        }
+        return flag
+    }
+
+    //     for (let i = 0; i < 8; i++) {
+    //         for (let j = 0; j < 8; j++) {
+    //             // generating all possible squares for bishop
+    //             if(
+    //                 ((i + j === fromRow + fromCol)
+    //                 ||
+    //                 (Math.abs(i - j) === Math.abs(fromRow - fromCol) && fromRow - i === fromCol - j))
+    //                 &&
+    //                 i !== fromRow
+    //                 &&
+    //                 j !== fromCol
+    //             )
+    //                 bishopMoves.push([i, j])
+    //         }
+    //     }
+    //    console.log(bishopMoves);
+    // }
+
+    // return flag
 }
 // CHECK ALL PIECES MOVES -------------------------------------------------------------------------------------------
 function isValidMove(piece, from, to){
@@ -194,18 +232,18 @@ function movePiece(e){
     if(clickedPiece){
         // check is white or black move
         if(isWhiteMove){
-            let [row, col] = e.target.parentNode.id.split('-')
+            let [row, col, num] = e.target.parentNode.id.split('-')
             // get position of selected white piece and assign to global variable -> selected
             if(squaresData[row][col].color === 'white'){
-                selected.from = { row, col }
+                selected.from = { row, col, num }
                 pieceIsSelected = true
             }
         }
         else{
-            let [row, col] = e.target.parentNode.id.split('-')
+            let [row, col, num] = e.target.parentNode.id.split('-')
             // get position of selected black piece
             if(squaresData[row][col].color === 'black'){
-                selected.from = { row, col }
+                selected.from = { row, col, num }
                 pieceIsSelected = true
             }
         }
@@ -213,8 +251,8 @@ function movePiece(e){
     // click square where we want to move a piece
     if(pieceIsSelected){
         // get coordinates of clicked piece or square and assign to global variable -> selected
-        let [row, col] = (clickedPiece) ? e.target.parentElement.id.split('-') : e.target.id.split('-')
-        selected.to = { row, col }
+        let [row, col, num] = (clickedPiece) ? e.target.parentElement.id.split('-') : e.target.id.split('-')
+        selected.to = { row, col, num }
         let pieceToMove = squaresData[selected.from.row][selected.from.col]
 
         // validating piece move, isValidMove() return true or false
@@ -250,14 +288,12 @@ function toggleModal(piece){
 // PICK PIECE AFTER PAWN REACHES LAST ROW ---------------------------------------------------------------------------
 function pickPiece(e){
     let pickedPiece = availablePieces.filter(element => element.piece === e.target.id)[0]
-    console.log(pickedPiece);
     squaresData[selected.to.row][selected.to.col] = pickedPiece
     modalPickPiece.classList.add('modal-closed')
     pickedPiece = null
     resetPiecesBox()
     resetChessboard()
     generateChessboard(squaresData)
-    console.log(squaresData);
 }
 
 
