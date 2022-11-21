@@ -265,6 +265,18 @@ function isValidQueenMove(piece, from, to){
         return true
     else return false
 }
+// CHECK VALID King MOVE -------------------------------------------------------------------------------------------
+function isValidKingMove(piece, from, to){
+    const [fromRow, fromCol, toRow, toCol] = [from.row, from.col, to.row, to.col].map((num) => Number(num))
+    const rowDiff = Math.abs(toRow - fromRow)
+    const colDiff = Math.abs(toCol - fromCol)
+
+
+    // check if square is attacked by other pieces
+    if(isValidQueenMove(piece, from, to) && rowDiff <= 1 && colDiff <= 1)
+        return true
+    else return false
+}
 // CHECK ALL PIECES MOVES -------------------------------------------------------------------------------------------
 function isValidMove(piece, from, to){
     let pieceName = piece.piece.toLowerCase()
@@ -278,10 +290,15 @@ function isValidMove(piece, from, to){
     // bishop
     if(pieceName === 'b')
         return isValidBishopMove(piece, from, to)
+    // rook
     if(pieceName === 'r')
         return isValidRookMove(piece, from, to)
+    // queen
     if(pieceName === 'q')
         return isValidQueenMove(piece, from, to)
+    // king
+    if(pieceName === 'k')
+        return isValidKingMove(piece, from, to)
 }
 // MOVE PIECES ------------------------------------------------------------------------------------------------------
 function movePiece(e){
@@ -363,5 +380,3 @@ generateChessboard(squaresData)
 // EVENT LISTENER - MOVE PIECES -------------------------------------------------------------------------------------
 table.addEventListener('click', movePiece)
 piecesBox.addEventListener('click', pickPiece)
-
-// console.log(squaresData);
