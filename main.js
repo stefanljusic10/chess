@@ -107,7 +107,7 @@ function isValidPawnMove(piece, from, to){
     const isEmptySquare = isEmpty(squaresData[toRow][toCol])
 
     if(piece.color === 'white' && toRow < fromRow){
-        if(rowDiff === 1 && colDiff === 1 && toRow === 0)
+        if(rowDiff === 1 && colDiff <= 1 && toRow === 0)
             toggleModal(piece)
         if(piece.isMoved === false && rowDiff <= 2 && colDiff === 0 && isEmptySquare)
             return true
@@ -119,7 +119,7 @@ function isValidPawnMove(piece, from, to){
     }
 
     if(piece.color === 'black' && toRow > fromRow){
-        if(rowDiff === 1 && colDiff === 1 && toRow === 7)
+        if(rowDiff === 1 && colDiff <= 1 && toRow === 7)
             toggleModal(piece)
         if(piece.isMoved === false && rowDiff <= 2 && colDiff === 0 && isEmptySquare)
             return true
