@@ -9,18 +9,18 @@ const selected = { from: null, to: null }
 let isWhiteMove = true
 let pieceIsSelected = false
 const piecesImagePath = {
-    P: './assets/whitepawn.svg',
-    N: './assets/whitenight.svg',
-    B: './assets/whitebishop.svg',
-    R: './assets/whiterook.svg',
-    K: './assets/whiteking.svg',
-    Q: './assets/whitequeen.svg',
-    p: './assets/blackpawn.svg',
-    n: './assets/blacknight.svg',
-    b: './assets/blackbishop.svg',
-    r: './assets/blackrook.svg',
-    k: './assets/blackking.svg',
-    q: './assets/blackqueen.svg'
+    P: './src/assets/whitepawn.svg',
+    N: './src/assets/whitenight.svg',
+    B: './src/assets/whitebishop.svg',
+    R: './src/assets/whiterook.svg',
+    K: './src/assets/whiteking.svg',
+    Q: './src/assets/whitequeen.svg',
+    p: './src/assets/blackpawn.svg',
+    n: './src/assets/blacknight.svg',
+    b: './src/assets/blackbishop.svg',
+    r: './src/assets/blackrook.svg',
+    k: './src/assets/blackking.svg',
+    q: './src/assets/blackqueen.svg'
 }
 const availablePieces = [
     { piece: 'r', color: 'black', isMoved: true },

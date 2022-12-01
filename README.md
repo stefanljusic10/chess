@@ -11,3 +11,6 @@
 1. Chess clock
 2. Showing taken pieces next to the chessboard
 3. Drag and drop
+4. Toggle chessboard theme
+5. Moves notation
+6. Show all allowed squares for selected pieces
