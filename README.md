@@ -1,5 +1,7 @@
 # chess from scratch
 
+https://starlit-shortbread-40a32e.netlify.app/
+
 ### Steps:
 1. Generate 8x8 global matrix where every element represents a square on a chessboard. Every element(square) is an object which contains different properties according if square is empty or have a piece on it.
 2. Generate a chessboard based on the previously generated matrix
