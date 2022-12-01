@@ -6,17 +6,18 @@
 
 body{
     height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .table{
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
-    margin: 10vh auto;
     width: 35rem;
     height: 35rem;
-    border: 5px solid #52656f;
-    z-index: 0;
+    border: 10px solid #52656f;
 }
 
 .square{

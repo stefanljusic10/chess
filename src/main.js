@@ -300,6 +300,10 @@ function isValidMove(piece, from, to){
     if(pieceName === 'k')
         return isValidKingMove(piece, from, to)
 }
+// IS KING CHECKED
+function isKingChecked(){
+
+}
 // MOVE PIECES ------------------------------------------------------------------------------------------------------
 function movePiece(e){
     let clickedPiece = (e.target.tagName === 'IMG')
